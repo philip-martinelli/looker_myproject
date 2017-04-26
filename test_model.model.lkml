@@ -17,3 +17,32 @@ explore: order_items {
      sql_on: ${users.id} = ${orders.user_id} ;;
    }
  }
+
+
+explore: orders {
+  from: orders
+  view_name: orders_woot_woot
+ # view_name: orders_test_woot_woot
+}
+
+explore: orders_two {
+  extends: [orders]
+}
+
+
+explore: CA_users {
+  from: users
+  view_name: users
+  sql_always_where: ${users.state} = 'California' ;;
+}
+
+
+explore: Other_users {
+  from: users
+  view_name: users
+  sql_always_where: ${users.state} != 'California' ;;
+}
+
+
+explore: users_facts {
+}
