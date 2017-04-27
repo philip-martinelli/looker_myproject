@@ -37,11 +37,6 @@ explore: CA_users {
 }
 
 
-explore: Other_users {
-  from: users
-  view_name: users
-  sql_always_where: ${users.state} != 'California' ;;
-}
 
 
 explore: users_facts {
