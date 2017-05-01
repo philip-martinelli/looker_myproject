@@ -6,9 +6,13 @@ view: users_facts {
         , COUNT(*) as lifetime_orders
         , MAX(orders.created_at) as most_recent_purchase_at
         , MIN(orders.created_at) as earliest_purchase_at
+        ,DATEDIFF(MAX(orders.created_at),MIN(orders.created_at)) as diff
+        ,COUNT(*)/12 as average_orders_per_month
       FROM orders
       GROUP BY user_id
       ;;
+    persist_for: "1 hour"
+    indexes: ["user_id"]
   }
 
   # Define your dimensions and measures here, like this:
@@ -38,16 +42,31 @@ view: users_facts {
     sql: ${TABLE}.earliest_purchase_at ;;
   }
 
+  dimension: diff {
+    type: number
+    sql: ${TABLE}.diff;;
+  }
+
+  dimension: repeat_customer {
+    type: yesno
+    sql: ${TABLE}.diff >= 1;;
+  }
+
+  dimension: average_orders_per_month {
+    type: number
+    sql: ROUND(${TABLE}.average_orders_per_month,2) ;;
+  }
+
   dimension: date_diff {
     type: number
     sql: DATEDIFF(DATE(${TABLE}.most_recent_purchase_at),DATE(${TABLE}.earliest_purchase_at )) ;;
     label: "Max/Min Diff"
   }
 
-  measure: date_diff_av {
-    type: average
-    sql: ${date_diff} ;;
-  }
+#   measure: date_diff_av {
+#     type: average
+#     sql: ${date_diff} ;;
+#   }
 
 #   measure: total_lifetime_orders {
 #     description: "Use this for counting lifetime orders across many users"
