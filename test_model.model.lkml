@@ -1,7 +1,7 @@
 connection: "thelook"
 
-include: "*.view.lkml"         # include all views in this project
-include: "*.dashboard.lookml"  # include all dashboards in this project
+include: "*.view"         # include all views in this project
+include: "*.dashboard"  # include all dashboards in this project
 
 # # Select the views that should be a part of this model,
 # # and define the joins that connect them together.
@@ -35,9 +35,6 @@ explore: CA_users {
   view_name: users
   sql_always_where: ${users.state} = 'California' ;;
 }
-
-
-
 
 explore: users_facts {
 }
