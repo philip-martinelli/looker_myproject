@@ -1,16 +1,21 @@
 view: users_facts {
   # Or, you could make this view a derived table, like this:
   derived_table: {
-    sql: SELECT
-        user_id as user_id
-        , COUNT(*) as lifetime_orders
-        , MAX(orders.created_at) as most_recent_purchase_at
-        , MIN(orders.created_at) as earliest_purchase_at
-        ,DATEDIFF(MAX(orders.created_at),MIN(orders.created_at)) as diff
-        ,COUNT(*)/12 as average_orders_per_month
-      FROM orders
-      GROUP BY user_id
-      ;;
+    sql:
+    select
+     a.user_id
+    ,count(a.id)
+    ,MIN(a.created_at) as earliest_purchase_date
+    ,MAX(a.created_at) as most_recent_purchase_date
+    ,DATEDIFF(MAX(a.created_at),MIN(a.created_at)) as days_between_earliest_and_most_recent_purchase_date
+    ,count(a.id)/(select TIMESTAMPDIFF(MONTH,MIN(b.created_at),NOW()) as months_since_first_purchase
+    from orders b
+    where b.user_id = a.user_id
+    group by b.user_id) as avg_orders_per_months_as_customer
+    from orders a
+    where a.created_at is not null
+    group by 1
+    ;;
     persist_for: "1 hour"
     indexes: ["user_id"]
   }
@@ -32,14 +37,14 @@ view: users_facts {
     description: "The date when each user last ordered"
     type: time
     timeframes: [date, week, month, year]
-    sql: ${TABLE}.most_recent_purchase_at ;;
+    sql: ${TABLE}.most_recent_purchase_date ;;
   }
 
   dimension_group: earliest_purchase {
     description: "The date when each user last ordered"
     type: time
     timeframes: [date, week, month, year]
-    sql: ${TABLE}.earliest_purchase_at ;;
+    sql: ${TABLE}.earliest_purchase_date ;;
   }
 
   dimension: diff {
@@ -54,13 +59,25 @@ view: users_facts {
 
   dimension: average_orders_per_month {
     type: number
-    sql: ROUND(${TABLE}.average_orders_per_month,2) ;;
+    sql: ROUND(${TABLE}.avg_orders_per_months_as_customer,2) ;;
+  }
+
+  dimension: average_orders_per_month_tiered {
+    type: tier
+    style: interval
+    tiers: [0.04,0.06,0.08,1.0]
+    sql: ${TABLE}.avg_orders_per_months_as_customer ;;
   }
 
   dimension: date_diff {
     type: number
     sql: DATEDIFF(DATE(${TABLE}.most_recent_purchase_at),DATE(${TABLE}.earliest_purchase_at )) ;;
     label: "Max/Min Diff"
+  }
+
+  measure: count {
+    type: count
+    drill_fields: []
   }
 
 #   measure: date_diff_av {
