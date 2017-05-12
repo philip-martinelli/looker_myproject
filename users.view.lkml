@@ -56,6 +56,10 @@ view: users {
   dimension: gender {
     type: string
     sql: ${TABLE}.gender ;;
+    link: {
+      label: "test"
+      url: "https://www.google.com/"
+    }
   }
 
   dimension: last_name {
@@ -66,6 +70,7 @@ view: users {
   dimension: state {
     type: string
     sql: ${TABLE}.state ;;
+    html: <a href="https://www.google.com/">{{value}}</a>;;
   }
 
   dimension: zip {

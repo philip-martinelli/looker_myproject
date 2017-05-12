@@ -32,6 +32,16 @@ view: orders {
     sql: ${TABLE}.user_id ;;
   }
 
+
+  dimension: details_link {
+    sql: ${TABLE}.user_id ;;
+    html: <a href="/explore/my_project/orders?fields=orders.id,orders.status&f[users.id]={{value}}">Order History</a>
+    | <a href="/explore/my_project/orders?fields=users.state,users.city,users.gender,users.first_name,users.last_name&f[users.id]={{value}}">User Info</a>;;
+  }
+
+
+
+
   measure: count {
     type: count
     drill_fields: [id, users.last_name, users.first_name, users.id, order_items.count]
