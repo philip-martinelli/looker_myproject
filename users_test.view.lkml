@@ -2,7 +2,7 @@ view: users_test {
 
   derived_table: {
     sql:select state from users where {% condition state_filter %} state {% endcondition %};;
-    sql_trigger_value: "SELECT CURDATE()";;
+    sql_trigger_value: SELECT 1;;
     indexes: ["state"]
   }
 
@@ -17,6 +17,7 @@ view: users_test {
 
   filter: state_filter {
     type: string
+    default_value: "California"
   }
 
 
